@@ -1,20 +1,3 @@
-// https://docs.microsoft.com/en-us/ef/core/cli/dotnet
-
-// dotnet tool install --global dotnet-ef --prerelease
-// # ensure that you can now run just "dotnet ef"
-// # create the database
-// dotnet ef database update
-// # create migrations files in Migrations
-// dotnet ef migrations add initialDb
-// # apply migrations
-// dotnet ef database update
-
-// to use the tool on a project, you also need on the project:
-// dotnet add package Microsoft.EntityFrameworkCore.Design --prerelease
-// you might also need
-// Microsoft.EntityFrameworkCore.Tools --prerelease
-
-// dotnet add package Microsoft.EntityFrameworkCore.sqlite --prerelease
 using Microsoft.EntityFrameworkCore;
 // for OpenApiInfo
 using Microsoft.OpenApi.Models;
