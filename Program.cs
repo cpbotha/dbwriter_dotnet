@@ -6,8 +6,8 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//builder.Configuration.GetConnectionString("NameInConnectionStringsSection")
 // https://docs.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings
+// usually folks use to extract this from config: builder.Configuration.GetConnectionString("NameInConnectionStringsSection")
 builder.Services.AddDbContext<SamplesDbContext>(options => options.UseSqlite("Data Source=bleh.db;Cache=Shared"));
 
 // setup openapi / swagger services
