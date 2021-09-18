@@ -65,8 +65,14 @@ app.MapGet("/samples", (SamplesDbContext dbContext) => {
 
 });
 
+app.MapGet("/samples/{id}", (SamplesDbContext dbContext, int id) => {
+    return dbContext.Samples.Find(id) is Sample sample ? Results.Ok(sample) : Results.NotFound();
+});
+
 
 app.UseSwaggerUI();
+
+
 app.Run();
 //await app.RunAsync();
 
