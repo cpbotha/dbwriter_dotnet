@@ -1,9 +1,18 @@
+dotnet 6 minimal API with EF Core for writing time-samples to a database
+
+I started from `dotnet new web` and took it from there.
+
+For me as a newbie (to this stack), these two sites were super helpful:
+
+- [David Fowler's Minimal APIs at a glance](https://gist.github.com/davidfowl/ff1addd02d239d2d26f4648a06158727)
+- [Anuraj's Open API + Minimal API blog post and example](https://dotnetthoughts.net/openapi-support-for-aspnetcore-minimal-webapi/)
+
 ## Build
 
 Publish this whole thing as a single self-contained binary:
 
 ```shell
-dotnet publish -r linux-x64 -p:PublishSingleFile=true --self-contained true
+dotnet publish -c Release -r linux-x64 -p:PublishSingleFile=true --self-contained
 ```
 
 See https://docs.microsoft.com/en-us/dotnet/core/deploying/single-file
