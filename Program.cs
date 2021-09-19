@@ -1,3 +1,5 @@
+// wrk -t10 -c100 -d20s -R1000 http://localhost:5247/samples/1
+
 using Microsoft.EntityFrameworkCore;
 // for OpenApiInfo
 using Microsoft.OpenApi.Models;
@@ -8,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // https://docs.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings
 // usually folks use to extract this from config: builder.Configuration.GetConnectionString("NameInConnectionStringsSection")
+// disabling tracking to see what that does to performance
 builder.Services.AddDbContext<SamplesDbContext>(options => options.UseSqlite("Data Source=bleh.db;Cache=Shared"));
 
 // setup openapi / swagger services
@@ -32,8 +35,8 @@ app.UseSwagger();
 
 // simplified version of https://gist.github.com/davidfowl/ff1addd02d239d2d26f4648a06158727#gistcomment-3896575
 // here I just want to create or migrate the database if necessary so standalone server works
-var dbContext = app.Services.GetRequiredService<SamplesDbContext>();
-dbContext.Database.Migrate();
+//var dbContext = app.Services.GetRequiredService<SamplesDbContext>();
+//dbContext.Database.Migrate();
 
 // Routing ===========================================================
 
@@ -52,16 +55,18 @@ app.MapGet("/samples", (SamplesDbContext dbContext) => {
 
 });
 
-app.MapGet("/samples/{id}", (SamplesDbContext dbContext, int id) => {
-    return dbContext.Samples.Find(id) is Sample sample ? Results.Ok(sample) : Results.NotFound();
+app.MapGet("/samples/{id}", async (SamplesDbContext dbContext, int id) => {
+    var s = await dbContext.Samples.FindAsync(id);
+    // try to make sure that the tracked Sample will not be re-used for subsequent reads
+    dbContext.ChangeTracker.Clear();
+    return s is Sample sample ? Results.Ok(sample) : Results.NotFound();
 });
 
 
 app.UseSwaggerUI();
 
-
-app.Run();
-//await app.RunAsync();
+//app.Run();
+await app.RunAsync();
 
 record PostedSample(string Name, int Age);
 
