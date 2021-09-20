@@ -11,7 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 // https://docs.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings
 // usually folks use to extract this from config: builder.Configuration.GetConnectionString("NameInConnectionStringsSection")
 // disabling tracking to see what that does to performance
-builder.Services.AddDbContext<SamplesDbContext>(options => options.UseSqlite("Data Source=bleh.db;Cache=Shared"));
+//builder.Services.AddDbContext<SamplesDbContext>(options => options.UseSqlite("Data Source=bleh.db;Cache=Shared"));
+
+builder.Services.AddDbContext<SamplesDbContext>(options => options.UseNpgsql("Host=localhost;Database=dbwriter_dotnet;Username=dbwriter;Password=blehbleh"));
 
 // setup openapi / swagger services
 builder.Services.AddEndpointsApiExplorer();
@@ -64,6 +66,8 @@ app.MapGet("/samples/{id}", async (SamplesDbContext dbContext, int id) => {
 
 
 app.UseSwaggerUI();
+
+System.Console.WriteLine("Started up...");
 
 //app.Run();
 await app.RunAsync();
