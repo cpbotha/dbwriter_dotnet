@@ -1,4 +1,4 @@
-// wrk -t10 -c100 -d20s -R1000 http://localhost:5247/samples/1
+// wrk2 -t10 -c100 -d20s -R1000 http://localhost:5247/samples/1
 
 using Microsoft.EntityFrameworkCore;
 // for OpenApiInfo
@@ -13,7 +13,9 @@ var builder = WebApplication.CreateBuilder(args);
 // disabling tracking to see what that does to performance
 //builder.Services.AddDbContext<SamplesDbContext>(options => options.UseSqlite("Data Source=bleh.db;Cache=Shared"));
 
-builder.Services.AddDbContext<SamplesDbContext>(options => options.UseNpgsql("Host=localhost;Database=dbwriter_dotnet;Username=dbwriter;Password=blehbleh"));
+// .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+builder.Services.AddDbContext<SamplesDbContext>(options =>
+    options.UseNpgsql("Host=localhost;Database=dbwriter_dotnet;Username=dbwriter;Password=blehbleh"));
 
 // setup openapi / swagger services
 builder.Services.AddEndpointsApiExplorer();
@@ -64,7 +66,9 @@ app.MapGet("/samples", (SamplesDbContext dbContext) => {
 
 app.MapGet("/samples/{id}", async (SamplesDbContext dbContext, int id) => {
     var s = await dbContext.Samples.FindAsync(id);
-    // try to make sure that the tracked Sample will not be re-used for subsequent reads
+    // DON'T DO THIS IN YOUR CODE PLEASE
+    // I am to ensure that the tracked Sample will not be re-used for subsequent reads
+    // (AsNoTracking() is not available on FindAsync())
     dbContext.ChangeTracker.Clear();
     return s is Sample sample ? Results.Ok(sample) : Results.NotFound();
 });
