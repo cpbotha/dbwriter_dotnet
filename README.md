@@ -23,11 +23,27 @@ See https://docs.microsoft.com/en-us/dotnet/core/deploying/single-file
 
 When you start working on this thing:
 
+First create the database in postgresql:
+
+```shell
+sudo su postgres
+psql < drop_and_create_db.sql
+exit
+```
+
+Then migrate this examples schema:
+
 ```shell
 dotnet tool install --global dotnet-ef --prerelease
 # ensure that you can now run just "dotnet ef"
 # create / migrate the database
 dotnet ef database update
+```
+
+Try it out with:
+
+```shell
+dotnet run
 ```
 
 When you've changed the database models and you want to update migrations, do:
@@ -60,6 +76,8 @@ It seems I am blocked until they release rc1 of the postgresql adapter: https://
 
 I did try rolling the dice with an unstable CI build:
 https://www.myget.org/feed/npgsql-unstable/package/nuget/Npgsql.EntityFrameworkCore.PostgreSQL -- but this just resulted in the next error.
+
+This started working with the `20210923T214126+sha.b93cf83d3` CI builds of Npgsql!
 
 ## How I got started
 
