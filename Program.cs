@@ -35,10 +35,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseSwagger();
 
-// simplified version of https://gist.github.com/davidfowl/ff1addd02d239d2d26f4648a06158727#gistcomment-3896575
-// here I just want to create or migrate the database if necessary so standalone server works
-//var dbContext = app.Services.GetRequiredService<SamplesDbContext>();
-//dbContext.Database.Migrate();
+// instead of running dotnet ef database migrate you can do the following:
+// (mashed up https://gist.github.com/davidfowl/ff1addd02d239d2d26f4648a06158727#gistcomment-3896575
+//  and https://stackoverflow.com/a/46064116/532513 to come up with this -- keeping here
+//  because might be useful later)
+using (var serviceScope = app.Services.CreateScope())
+{
+    var dbContext = serviceScope.ServiceProvider.GetRequiredService<SamplesDbContext>();
+    dbContext.Database.Migrate();
+}
 
 // Routing ===========================================================
 
