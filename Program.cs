@@ -89,11 +89,12 @@ public class SamplesDbContext : DbContext
 }
 public class Sample
 {
+    // Id or SampleId will by convention be the PK
     public int Id { get; set; }
     // following guidance of https://github.com/dotnet/efcore/issues/15520
     // we use = default! here too
     public string Name { get; set; } = default!;
     public DateTime TimeStamp { get; set; }
-    public float v0 { get; set; }
-    public float v1 { get; set; }
+    public float? v0 { get; set; }
+    public float? v1 { get; set; }
 }
