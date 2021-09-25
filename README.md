@@ -79,6 +79,8 @@ https://www.myget.org/feed/npgsql-unstable/package/nuget/Npgsql.EntityFrameworkC
 
 This started working with the `20210923T214126+sha.b93cf83d3` CI builds of Npgsql!
 
+... and on 2021-09-25 the official 6.0.0.rc.1 builds were released.
+
 ## How I got started
 
 I started from `dotnet new web` and took it from there.
