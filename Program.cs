@@ -60,7 +60,9 @@ app.MapPost("/samples", async (SamplesDbContext dbContext, PostedSample sample) 
     return Results.Created($"/{dbSample.Id}", dbSample);
 });
 
-app.MapGet("/samples", (SamplesDbContext dbContext) => dbContext.Samples.ToListAsync());
+// David Fowler recommends preferring await over returning Task directly:
+// https://github.com/davidfowl/AspNetCoreDiagnosticScenarios/blob/master/AsyncGuidance.md#prefer-asyncawait-over-directly-returning-task
+app.MapGet("/samples", async (SamplesDbContext dbContext) => await dbContext.Samples.ToListAsync());
 
 app.MapGet("/samples/{id}", async (SamplesDbContext dbContext, int id) => {
     var s = await dbContext.Samples.FindAsync(id);
