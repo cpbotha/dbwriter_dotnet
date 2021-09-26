@@ -52,17 +52,15 @@ using (var serviceScope = app.Services.CreateScope())
 app.MapGet("/", () => "Hello World!");
 
 // MapPost will magically bind body into record or class
-app.MapPost("/samples", (SamplesDbContext dbContext, Sample sample) => {
-    System.Console.WriteLine($"{sample.TimeStamp}");
-    dbContext.Samples.Add(sample);
-    dbContext.SaveChanges();
-    return Results.Created($"/{sample.Id}", sample);
+app.MapPost("/samples", async (SamplesDbContext dbContext, PostedSample sample) => {
+    // init EF model Sample from PostedSample record
+    var dbSample = new Sample {Name = sample.Name, TimeStamp = sample.TimeStamp, v0 = sample.v0, v1 = sample.v1 };
+    await dbContext.Samples.AddAsync(dbSample);
+    await dbContext.SaveChangesAsync();
+    return Results.Created($"/{dbSample.Id}", dbSample);
 });
 
-app.MapGet("/samples", (SamplesDbContext dbContext) => {
-    return dbContext.Samples.ToList();
-
-});
+app.MapGet("/samples", (SamplesDbContext dbContext) => dbContext.Samples.ToListAsync());
 
 app.MapGet("/samples/{id}", async (SamplesDbContext dbContext, int id) => {
     var s = await dbContext.Samples.FindAsync(id);
@@ -70,7 +68,10 @@ app.MapGet("/samples/{id}", async (SamplesDbContext dbContext, int id) => {
     // I am to ensure that the tracked Sample will not be re-used for subsequent reads
     // (AsNoTracking() is not available on FindAsync())
     dbContext.ChangeTracker.Clear();
-    return s is Sample sample ? Results.Ok(sample) : Results.NotFound();
+    // you could use is-pattern-expression like this:
+    //return s is Sample sample ? Results.Ok(sample) : Results.NotFound();
+    // but we can reframe to re-use the Sample s we already have:
+    return s is not null ? Results.Ok(s) : Results.NotFound();
 });
 
 
@@ -81,7 +82,6 @@ System.Console.WriteLine("Started up...");
 //app.Run();
 await app.RunAsync();
 
-record PostedSample(string Name, int Age);
 
 public class SamplesDbContext : DbContext
 {
@@ -107,3 +107,6 @@ public class Sample
     public float? v0 { get; set; }
     public float? v1 { get; set; }
 }
+
+// use light-weight record to specify shape of POSTed record
+record PostedSample(string Name, DateTime TimeStamp, float? v0, float? v1);
