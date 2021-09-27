@@ -1,4 +1,4 @@
-// wrk2 -t10 -c100 -d20s -R1000 http://localhost:5247/samples/1
+// wrk2 -t10 -c100 -d20s -R2000 http://localhost:5247/samples/1
 
 using Microsoft.EntityFrameworkCore;
 // for OpenApiInfo
@@ -13,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 // disabling tracking to see what that does to performance
 //builder.Services.AddDbContext<SamplesDbContext>(options => options.UseSqlite("Data Source=bleh.db;Cache=Shared"));
 
+// You can globally disable tracking with:
 // .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
 builder.Services.AddDbContext<SamplesDbContext>(options =>
     options.UseNpgsql("Host=localhost;Database=dbwriter_dotnet;Username=dbwriter;Password=blehbleh"));
@@ -66,10 +67,13 @@ app.MapGet("/samples", async (SamplesDbContext dbContext) => await dbContext.Sam
 
 app.MapGet("/samples/{id}", async (SamplesDbContext dbContext, int id) => {
     var s = await dbContext.Samples.FindAsync(id);
-    // DON'T DO THIS IN YOUR CODE PLEASE
-    // I am to ensure that the tracked Sample will not be re-used for subsequent reads
-    // (AsNoTracking() is not available on FindAsync())
+
+    // Think very carefully if you want to do this in your code:
+    // Here I want to ensure that the tracked Sample will not be re-used for subsequent reads
+    // (AsNoTracking() is not available on FindAsync()).
+    // also, seeing that we only want to pass the sample off to the client, tracking not relevant.
     dbContext.ChangeTracker.Clear();
+
     // you could use is-pattern-expression like this:
     //return s is Sample sample ? Results.Ok(sample) : Results.NotFound();
     // but we can reframe to re-use the Sample s we already have:
