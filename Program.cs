@@ -8,15 +8,12 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// https://docs.microsoft.com/en-us/dotnet/standard/data/sqlite/connection-strings
-// usually folks use to extract this from config: builder.Configuration.GetConnectionString("NameInConnectionStringsSection")
-// disabling tracking to see what that does to performance
-//builder.Services.AddDbContext<SamplesDbContext>(options => options.UseSqlite("Data Source=bleh.db;Cache=Shared"));
-
-// You can globally disable tracking with:
-// .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+// default hosting environment for "dotnet run" is "Development" so this will use
+// appsettings.Development.json to get DefaultConnection
 builder.Services.AddDbContext<SamplesDbContext>(options =>
-    options.UseNpgsql("Host=localhost;Database=dbwriter_dotnet;Username=dbwriter;Password=blehbleh"));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+// You can globally disable tracking above with:
+// .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
 
 // setup openapi / swagger services
 builder.Services.AddEndpointsApiExplorer();
