@@ -17,12 +17,20 @@ builder.Services.AddDbContext<SamplesDbContext>(options =>
 
 // setup openapi / swagger services
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options => options.SwaggerDoc("v1", new OpenApiInfo
+builder.Services.AddSwaggerGen(options =>
 {
-    Title = "dotnet 6 minimal api dbwriter API",
-    Description = "Simple description",
-    Version = "v1"
-}));
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "dotnet 6 minimal api dbwriter API",
+        Description = "One day, all of this will be yours!",
+        Version = "v1"
+    });
+
+    // include /// XML comments from this source into the Swagger docs
+    // see https://github.com/domaindrivendev/Swashbuckle.AspNetCore#include-descriptions-from-xml-comments
+    var filePath = Path.Combine(System.AppContext.BaseDirectory, "dbwriter_dotnet.xml");
+    options.IncludeXmlComments(filePath);
+});
 
 
 // Configure =====================================================
@@ -47,10 +55,18 @@ using (var serviceScope = app.Services.CreateScope())
 
 // Routing ===========================================================
 
-app.MapGet("/", () => "Hello World!");
+// https://gist.github.com/davidfowl/ff1addd02d239d2d26f4648a06158727#route-handlers
+// 1. local function:
+// string HelloWorldFunc() => "Hello, World!";
+// app.MapGet("/", HelloWorldFunc);
+// 2. or inline lambda:
+// app.MapGet("/", () => "Hello World!");
+// 3. in this specific case, we use a static method as that seems to be the only
+//    thing that will allow XML docs
+app.MapGet("/", HelloHandler.Hello);
 
-// MapPost will magically bind body into record or class
 app.MapPost("/samples", async (SamplesDbContext dbContext, PostedSample sample) => {
+    // MapPost will magically bind body into record or class
     // init EF model Sample from PostedSample record
     var dbSample = new Sample {Name = sample.Name, TimeStamp = sample.TimeStamp, v0 = sample.v0, v1 = sample.v1 };
     await dbContext.Samples.AddAsync(dbSample);
@@ -99,6 +115,13 @@ public class SamplesDbContext : DbContext
     // https://headspring.com/2019/12/19/c-sharp-8-entity-framework-patterns/
     public DbSet<Sample> Samples { get; set; } = default!;
 }
+
+/// <summary>
+/// Model for sample in database
+/// </summary>
+/// <remarks>
+/// I'm only doing this to test the XML docs -> Swagger integration.
+/// </remarks>
 public class Sample
 {
     // Id or SampleId will by convention be the PK
@@ -113,3 +136,19 @@ public class Sample
 
 // use light-weight record to specify shape of POSTed record
 record PostedSample(string Name, DateTime TimeStamp, float? v0, float? v1);
+
+/// <summary>
+/// Handle all hello-related requests.
+/// </summary>
+class HelloHandler
+{
+    /// <summary>
+    /// Well, this method only really returns this one string, but it does so
+    /// very well. Although it's extracted into the XML file, it does not yet
+    /// appear in the Swagger UI.
+    /// </summary>
+    public static string Hello() 
+    {
+        return "Hello, World!";
+    }
+}
