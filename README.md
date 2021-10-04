@@ -1,8 +1,9 @@
 dotnet 6 "minimal API" with EF Core for writing time-samples to a database
 
-See the blog post at https://vxlabs.com/ "Developer experience setting up a
-minimal API in Go, C# and Python" (should be published before the end of
-October)
+See the blog post [Developer experience setting up a minimal API in Go, C# and
+Python at
+vxlabs.com](https://vxlabs.com/2021/10/03/dx-minimal-api-go-csharp-python/) for
+more information.
 
 See you,
 https://charlbotha.com/
@@ -19,6 +20,7 @@ See https://docs.microsoft.com/en-us/dotnet/core/deploying/single-file
 
 ## Dev environment
 
+You need at least .NET 6 (rc.1 at the time of writing) for this example.
 ### Get started with Entity Framework (EF)
 
 When you start working on this thing:
